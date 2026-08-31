@@ -8,35 +8,65 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 
-# Import quantitative modules
-from src.data_loader import fetch_crypto_data, get_crypto_summary_metrics, CRYPTO_TICKERS
-from src.volatility_engine import (
-    run_stationarity_test,
-    run_arch_lm_test,
-    fit_garch_model,
-    forecast_garch_volatility,
-    classify_volatility_regime
-)
-from src.feature_engineering import build_full_feature_matrix
-from src.ml_signal_generator import (
-    create_target_labels,
-    prepare_train_test_data,
-    train_signal_classifier,
-    evaluate_model_performance,
-    benchmark_multiple_models,
-    extract_feature_importance,
-    generate_live_signal
-)
-from src.backtester import run_strategy_backtest
-from src.visualizer import (
-    create_candlestick_chart,
-    create_volatility_gauge_chart,
-    create_volatility_chart,
-    create_volatility_forecast_chart,
-    create_confusion_matrix_chart,
-    create_backtest_chart,
-    create_feature_importance_chart
-)
+# Import quantitative modules (Universal dual-import support for src/ and flat root structures)
+try:
+    from src.data_loader import fetch_crypto_data, get_crypto_summary_metrics, CRYPTO_TICKERS
+    from src.volatility_engine import (
+        run_stationarity_test,
+        run_arch_lm_test,
+        fit_garch_model,
+        forecast_garch_volatility,
+        classify_volatility_regime
+    )
+    from src.feature_engineering import build_full_feature_matrix
+    from src.ml_signal_generator import (
+        create_target_labels,
+        prepare_train_test_data,
+        train_signal_classifier,
+        evaluate_model_performance,
+        benchmark_multiple_models,
+        extract_feature_importance,
+        generate_live_signal
+    )
+    from src.backtester import run_strategy_backtest
+    from src.visualizer import (
+        create_candlestick_chart,
+        create_volatility_gauge_chart,
+        create_volatility_chart,
+        create_volatility_forecast_chart,
+        create_confusion_matrix_chart,
+        create_backtest_chart,
+        create_feature_importance_chart
+    )
+except ModuleNotFoundError:
+    from data_loader import fetch_crypto_data, get_crypto_summary_metrics, CRYPTO_TICKERS
+    from volatility_engine import (
+        run_stationarity_test,
+        run_arch_lm_test,
+        fit_garch_model,
+        forecast_garch_volatility,
+        classify_volatility_regime
+    )
+    from feature_engineering import build_full_feature_matrix
+    from ml_signal_generator import (
+        create_target_labels,
+        prepare_train_test_data,
+        train_signal_classifier,
+        evaluate_model_performance,
+        benchmark_multiple_models,
+        extract_feature_importance,
+        generate_live_signal
+    )
+    from backtester import run_strategy_backtest
+    from visualizer import (
+        create_candlestick_chart,
+        create_volatility_gauge_chart,
+        create_volatility_chart,
+        create_volatility_forecast_chart,
+        create_confusion_matrix_chart,
+        create_backtest_chart,
+        create_feature_importance_chart
+    )
 
 # Page Configuration
 st.set_page_config(
