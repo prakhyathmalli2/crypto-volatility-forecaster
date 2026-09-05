@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: market-data-ingestion
+spec:
+  schedule: "5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: ingestion
+              image: your-registry/volatility-inference:latest
+              command: ["python", "-c"]
+              args: ["from data_pipeline.ingest_market_data import save_market_data; save_market_data('1h')"]
+          restartPolicy: OnFailure

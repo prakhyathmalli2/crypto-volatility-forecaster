@@ -1,0 +1,36 @@
+services:
+  training:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.training
+    volumes:
+      - ../data:/app/data
+      - ../saved_models:/app/saved_models
+    command: ["python", "main.py"]
+
+  inference:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.inference
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../saved_models:/app/saved_models
+      - ../paper_trading:/app/paper_trading
+    depends_on:
+      - training
+
+  dashboard:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.inference
+    command: ["streamlit", "run", "app.py", "--server.address=0.0.0.0", "--server.port=8501"]
+    environment:
+      API_URL: http://inference:8000
+    ports:
+      - "8501:8501"
+    volumes:
+      - ../data:/app/data
+      - ../paper_trading:/app/paper_trading
+    depends_on:
+      - inference
