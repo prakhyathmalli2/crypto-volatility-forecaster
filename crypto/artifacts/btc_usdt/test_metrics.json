@@ -1,0 +1,50 @@
+{
+  "asset": "BTC/USDT",
+  "asset_slug": "btc_usdt",
+  "timeframe": "1h",
+  "test_sample_count": 50,
+  "test_date_range": [
+    "2026-09-22 17:00:00+00:00",
+    "2026-09-24 18:00:00+00:00"
+  ],
+  "volatility_evaluation": {
+    "rmse": 0.227207,
+    "mae": 0.226687,
+    "pearson_correlation": -0.3533
+  },
+  "directional_classification": {
+    "directional_accuracy_pct": 50.0,
+    "precision": 0.5,
+    "recall": 1.0,
+    "f1_score": 0.6667,
+    "brier_score": 0.2614,
+    "confusion_matrix": {
+      "tp": 25,
+      "fp": 25,
+      "tn": 0,
+      "fn": 0
+    }
+  },
+  "trading_metrics": {
+    "sharpe_ratio": -15.94,
+    "sortino_ratio": -18.18,
+    "profit_factor": 0.02,
+    "max_drawdown_pct": -4.14,
+    "win_rate_pct": 50.0,
+    "total_trades": 2,
+    "strategy_return_pct": -2.92,
+    "buy_and_hold_return_pct": -2.42,
+    "avg_win_return_pct": 0.201,
+    "avg_loss_return_pct": -0.312
+  },
+  "model_weights": {
+    "garch": 0.35,
+    "lstm": 0.35,
+    "transformer": 0.3
+  },
+  "conformal_uncertainty_quantiles_90pct": {
+    "1h": 0.4050865236424623,
+    "6h": 0.23236513325135505,
+    "24h": 0.2675184033582761
+  }
+}

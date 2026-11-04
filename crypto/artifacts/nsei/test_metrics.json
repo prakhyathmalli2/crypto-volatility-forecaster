@@ -1,0 +1,50 @@
+{
+  "asset": "^NSEI",
+  "asset_slug": "nsei",
+  "timeframe": "1d",
+  "test_sample_count": 12,
+  "test_date_range": [
+    "2026-08-05 00:00:00+00:00",
+    "2026-08-20 00:00:00+00:00"
+  ],
+  "volatility_evaluation": {
+    "rmse": 0.160203,
+    "mae": 0.160155,
+    "pearson_correlation": -0.3082
+  },
+  "directional_classification": {
+    "directional_accuracy_pct": 66.67,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1_score": 0.0,
+    "brier_score": 0.243,
+    "confusion_matrix": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 8,
+      "fn": 4
+    }
+  },
+  "trading_metrics": {
+    "sharpe_ratio": 0.0,
+    "sortino_ratio": 0.0,
+    "profit_factor": 1.0,
+    "max_drawdown_pct": 0.0,
+    "win_rate_pct": 0.0,
+    "total_trades": 0,
+    "strategy_return_pct": 0.0,
+    "buy_and_hold_return_pct": -1.6,
+    "avg_win_return_pct": 0.0,
+    "avg_loss_return_pct": 0.0
+  },
+  "model_weights": {
+    "garch": 0.35,
+    "lstm": 0.35,
+    "transformer": 0.3
+  },
+  "conformal_uncertainty_quantiles_90pct": {
+    "1h": 0.27084767172485713,
+    "6h": 0.19361161413537653,
+    "24h": 0.18268151543559413
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "model_type": "TransformerModel",
+  "seq_len": 23,
+  "n_features": 21,
+  "d_model": 32,
+  "num_heads": 4,
+  "d_ff": 64,
+  "horizons": [
+    1,
+    6,
+    24
+  ]
+}

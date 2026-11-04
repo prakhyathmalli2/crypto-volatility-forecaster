@@ -1,0 +1,53 @@
+services:
+  ingestion:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.ingestion
+    volumes:
+      - ../data:/app/data
+    restart: "no"
+
+  training:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.training
+    volumes:
+      - ../data:/app/data
+      - ../artifacts:/app/artifacts
+      - ../saved_models:/app/saved_models
+    command: ["python", "main.py"]
+    depends_on:
+      - ingestion
+
+  inference:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.inference
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../data:/app/data
+      - ../artifacts:/app/artifacts
+      - ../saved_models:/app/saved_models
+      - ../paper_trading:/app/paper_trading
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+    depends_on:
+      - training
+
+  dashboard:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.inference
+    command: ["streamlit", "run", "app.py", "--server.address=0.0.0.0", "--server.port=8501"]
+    environment:
+      - API_URL=http://inference:8000
+    ports:
+      - "8501:8501"
+    volumes:
+      - ../data:/app/data
+      - ../artifacts:/app/artifacts
+      - ../paper_trading:/app/paper_trading
+    depends_on:
+      - inference

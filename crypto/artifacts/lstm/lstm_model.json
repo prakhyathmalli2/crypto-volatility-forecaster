@@ -1,0 +1,11 @@
+{
+  "model_type": "LSTMModel",
+  "seq_len": 23,
+  "n_features": 21,
+  "hidden_dim": 36,
+  "horizons": [
+    1,
+    6,
+    24
+  ]
+}

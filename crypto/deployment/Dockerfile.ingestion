@@ -1,0 +1,21 @@
+# Production Ingestion Service Container
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Install system dependencies for networking and healthchecks
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+
+# Run ingestion across all external data sources
+CMD ["python", "-c", "from data_pipeline.ingest_market_data import ingest_all_market_data; from data_pipeline.ingest_onchain_data import save_onchain_dataset; from data_pipeline.ingest_sentiment_data import save_sentiment_dataset; ingest_all_market_data(); save_onchain_dataset(); save_sentiment_dataset()"]

@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALPHAVOL PRO • Professional Multi-Asset Market Intelligence & Quantitative Platform</title>
+  <meta name="description" content="Institutional-grade quantitative market intelligence and multi-asset trading platform covering Crypto, Indian Equities, US Stocks, Indices, and Forex with explainable ML signals, interactive backtesting, and AI research." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/terminal.css" />
+  <!-- Lightweight Charts by TradingView -->
+  <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body class="terminal-dark">
+
+  <!-- ========================================================================
+       TOP GLOBAL NAVIGATION APP BAR
+       ======================================================================== -->
+  <header class="app-header">
+    <div class="header-left">
+      <!-- BRAND LOGO -->
+      <a href="#overview" class="brand-logo" title="ALPHAVOL PRO Quantitative Platform">
+        <span class="logo-icon">◈</span>
+        <span class="logo-text">ALPHA<span class="highlight">VOL</span></span>
+        <span class="version-tag">PRO</span>
+      </a>
+
+      <!-- GLOBAL SEARCH BAR -->
+      <div class="global-search-wrapper">
+        <div class="search-input-box">
+          <span class="search-lens">⌕</span>
+          <input type="text" id="globalSearchInput" placeholder="Search Crypto, Stocks, Indices, Forex (e.g. BTC, RELIANCE, NVDA)..." autocomplete="off" />
+          <button type="button" class="search-clear-btn" id="searchClearBtn" style="display:none;">&times;</button>
+        </div>
+        <div class="search-dropdown-menu" id="searchResultsDropdown" style="display:none;">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+
+      <!-- ACTIVE ASSET QUICK TELEMETRY PILL -->
+      <div class="active-ticker-pill" id="headerActivePill" title="Current Active Asset (Click to open Terminal)">
+        <span class="pill-sym" id="headerPillSymbol">BTC/USDT</span>
+        <span class="pill-price" id="headerPillPrice">$0.00</span>
+        <span class="pill-change" id="headerPillChange">+0.00%</span>
+        <span class="pill-status" id="headerPillStatus">OPEN</span>
+      </div>
+    </div>
+
+    <!-- MAIN NAVIGATION TABS (8 DEDICATED WORKSPACES) -->
+    <nav class="top-nav" id="mainNav">
+      <a href="#overview" class="nav-item active" data-page="overview">
+        <span class="nav-icon">📊</span> Overview
+      </a>
+      <a href="#terminal" class="nav-item" data-page="terminal">
+        <span class="nav-icon">⚡</span> Terminal
+      </a>
+      <a href="#research" class="nav-item" data-page="research">
+        <span class="nav-icon">🔬</span> Research
+      </a>
+      <a href="#news" class="nav-item" data-page="news">
+        <span class="nav-icon">📰</span> News & Events
+      </a>
+      <a href="#ai" class="nav-item" data-page="ai">
+        <span class="nav-icon">🤖</span> AI Assistant
+      </a>
+      <a href="#paper" class="nav-item" data-page="paper">
+        <span class="nav-icon">💼</span> Paper Trading
+      </a>
+      <a href="#backtest" class="nav-item" data-page="backtest">
+        <span class="nav-icon">📈</span> Backtest Lab
+      </a>
+      <a href="#principles" class="nav-item" data-page="principles">
+        <span class="nav-icon">📜</span> Principles
+      </a>
+    </nav>
+
+    <!-- HEADER RIGHT CONTROLS -->
+    <div class="header-right">
+      <div class="connection-status-badge" id="wsConnectionBadge" title="Live Streaming WebSockets">
+        <span class="status-dot green" id="wsStatusDot"></span>
+        <span class="status-text" id="wsStatusText">LIVE WS</span>
+      </div>
+
+      <div class="clock-display" id="headerClock" title="Current UTC Time">
+        00:00:00 UTC
+      </div>
+
+      <button class="btn-icon" id="openStatusBtn" title="System Observability & Server Telemetry">⚙</button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       PAGE VIEWS CONTAINER (ONE SCREEN = ONE PRIMARY JOB)
+       ======================================================================== -->
+  <main class="page-container" id="pageContainer">
+
+    <!-- ======================================================================
+         PAGE 1: MARKET OVERVIEW
+         ====================================================================== -->
+    <section class="page-view active" id="page-overview">
+      <div class="page-scrollable">
+        <!-- TOP MARKET SUMMARY STRIP -->
+        <div class="overview-top-strip">
+          <div class="market-hours-group">
+            <span class="strip-label">Global Markets:</span>
+            <div class="hours-badge" id="hoursCrypto"><span class="dot green"></span> Crypto: <strong>24/7 OPEN</strong></div>
+            <div class="hours-badge" id="hoursUS"><span class="dot green"></span> US Equities: <strong id="valHoursUS">OPEN</strong></div>
+            <div class="hours-badge" id="hoursNSE"><span class="dot green"></span> Indian NSE: <strong id="valHoursNSE">OPEN</strong></div>
+            <div class="hours-badge" id="hoursFX"><span class="dot green"></span> Forex: <strong id="valHoursFX">OPEN</strong></div>
+          </div>
+          <div class="macro-sentiment-strip" id="overviewSentimentStrip">
+            <span class="strip-label">Fear & Greed Index:</span>
+            <span class="fg-score-tag" id="overviewFgVal">--</span>
+            <span class="fg-label-tag" id="overviewFgLabel">Loading...</span>
+            <div class="fg-mini-bar-bg"><div class="fg-mini-bar-fill" id="overviewFgBar"></div></div>
+          </div>
+        </div>
+
+        <!-- SECTION: MARKET CATEGORIES & ASSET CARDS -->
+        <div class="overview-section">
+          <div class="section-header-bar">
+            <div class="section-title-wrap">
+              <h2>Market Summary</h2>
+              <span class="section-subtitle">Real-time asset pricing across asset classes</span>
+            </div>
+            <div class="category-filter-chips" id="overviewCategoryFilters">
+              <button class="cat-pill active" data-cat="ALL">All Assets</button>
+              <button class="cat-pill" data-cat="INDEX">Indices</button>
+              <button class="cat-pill" data-cat="CRYPTO">Crypto</button>
+              <button class="cat-pill" data-cat="INDIA">Indian Stocks</button>
+              <button class="cat-pill" data-cat="US">US Equities</button>
+              <button class="cat-pill" data-cat="FOREX">Forex</button>
+            </div>
+          </div>
+          <div class="overview-cards-grid" id="overviewCardsGrid">
+            <!-- Dynamically populated via JS -->
+            <div class="loading-placeholder">Streaming market data...</div>
+          </div>
+        </div>
+
+        <!-- SECTION: MARKET HEATMAP -->
+        <div class="overview-section">
+          <div class="section-header-bar">
+            <div class="section-title-wrap">
+              <h2>Market Heatmap</h2>
+              <span class="section-subtitle">Relative 24h performance across major benchmarks & sectors</span>
+            </div>
+            <div class="heatmap-legend">
+              <span class="legend-box deep-red">-3%</span>
+              <span class="legend-box red">-1%</span>
+              <span class="legend-box neutral">0%</span>
+              <span class="legend-box green">+1%</span>
+              <span class="legend-box deep-green">+3%</span>
+            </div>
+          </div>
+          <div class="heatmap-grid" id="overviewHeatmap">
+            <!-- Dynamically generated visual tiles -->
+          </div>
+        </div>
+
+        <!-- SECTION: MARKET MOVERS (3 SEPARATED COLUMNS) -->
+        <div class="overview-section">
+          <div class="section-header-bar">
+            <div class="section-title-wrap">
+              <h2>Market Movers</h2>
+              <span class="section-subtitle">Top Gainers, Top Losers, and Highest Volume</span>
+            </div>
+          </div>
+          <div class="movers-columns-grid">
+            <!-- COLUMN 1: TOP GAINERS -->
+            <div class="movers-card gainers-card">
+              <div class="movers-card-header">
+                <h3>🟢 Top Gainers</h3>
+                <span class="tag-count">24h Gain</span>
+              </div>
+              <div class="movers-list" id="moversGainersList">
+                <div class="loading-placeholder">Loading gainers...</div>
+              </div>
+            </div>
+
+            <!-- COLUMN 2: TOP LOSERS -->
+            <div class="movers-card losers-card">
+              <div class="movers-card-header">
+                <h3>🔴 Top Losers</h3>
+                <span class="tag-count">24h Decline</span>
+              </div>
+              <div class="movers-list" id="moversLosersList">
+                <div class="loading-placeholder">Loading losers...</div>
+              </div>
+            </div>
+
+            <!-- COLUMN 3: HIGHEST VOLUME -->
+            <div class="movers-card volume-card">
+              <div class="movers-card-header">
+                <h3>📊 Highest Volume</h3>
+                <span class="tag-count">24h Turnover</span>
+              </div>
+              <div class="movers-list" id="moversVolumeList">
+                <div class="loading-placeholder">Loading volume...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: MARKET NEWS HEADLINES -->
+        <div class="overview-section">
+          <div class="section-header-bar">
+            <div class="section-title-wrap">
+              <h2>Market Headlines</h2>
+              <span class="section-subtitle">Important financial & crypto news curated in real time</span>
+            </div>
+            <a href="#news" class="btn-text-link">View Full News Feed →</a>
+          </div>
+          <div class="overview-news-grid" id="overviewNewsGrid">
+            <!-- News headline cards injected via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         PAGE 2: TRADING TERMINAL
+         ====================================================================== -->
+    <section class="page-view" id="page-terminal">
+      <div class="terminal-layout">
+
+        <!-- LEFT SIDEBAR: WATCHLIST & CATEGORIES -->
+        <aside class="terminal-sidebar-left">
+          <div class="panel-header">
+            <h3>Watchlist</h3>
+            <span class="badge-tag" id="terminalWlCount">11 Assets</span>
+          </div>
+
+          <!-- WATCHLIST SEARCH & FILTER CHIPS -->
+          <div class="wl-search-box">
+            <input type="text" id="wlSearchInput" placeholder="Filter watchlist..." autocomplete="off" />
+          </div>
+          <div class="watchlist-filter-bar" id="terminalWlFilters">
+            <button class="wl-chip active" data-cat="ALL">All</button>
+            <button class="wl-chip" data-cat="CRYPTO">Crypto</button>
+            <button class="wl-chip" data-cat="INDIA">NSE</button>
+            <button class="wl-chip" data-cat="US">US</button>
+            <button class="wl-chip" data-cat="INDEX">Indices</button>
+            <button class="wl-chip" data-cat="FOREX">FX</button>
+            <button class="wl-chip" data-cat="FAV">⭐</button>
+          </div>
+
+          <!-- WATCHLIST ITEMS CONTAINER -->
+          <div class="watchlist-container" id="terminalWatchlist">
+            <!-- Injected via JS -->
+          </div>
+        </aside>
+
+        <!-- CENTER WORKSPACE: CHART & OSCILLATOR -->
+        <main class="terminal-center-area">
+          <!-- ASSET HEADER BAR -->
+          <div class="terminal-asset-header" id="terminalAssetHeader">
+            <div class="asset-title-block">
+              <span class="symbol-display" id="terminalSymbol">BTC/USDT</span>
+              <span class="name-display" id="terminalName">Bitcoin Perpetual</span>
+              <span class="exchange-badge" id="terminalExchange">BINANCE</span>
+              <span class="market-status-pill status-open" id="terminalStatusBadge">OPEN</span>
+            </div>
+            <div class="asset-price-block">
+              <span class="price-display" id="terminalPrice">$0.00</span>
+              <span class="change-display" id="terminalChange">+0.00%</span>
+            </div>
+            <div class="asset-telemetry-meta">
+              <div class="meta-item"><span class="meta-lbl">24h Vol:</span> <strong id="terminalVolume">--</strong></div>
+              <div class="meta-item"><span class="meta-lbl">24h High:</span> <strong id="terminalHigh24">--</strong></div>
+              <div class="meta-item"><span class="meta-lbl">24h Low:</span> <strong id="terminalLow24">--</strong></div>
+              <div class="meta-item"><span class="meta-lbl">52W Range:</span> <strong id="terminal52wRange">-- – --</strong></div>
+            </div>
+          </div>
+
+          <!-- UNPREDICTABLE VOLATILITY REGIME BANNER -->
+          <div id="unpredictableRegimeBanner" class="regime-banner" style="display:none;"></div>
+
+          <!-- CHART TOOLBAR CONTROLS -->
+          <div class="chart-toolbar">
+            <!-- TIMEFRAME SELECTOR -->
+            <div class="timeframe-selector" id="terminalTfSelector">
+              <button class="tf-btn" data-tf="1m">1m</button>
+              <button class="tf-btn" data-tf="5m">5m</button>
+              <button class="tf-btn" data-tf="15m">15m</button>
+              <button class="tf-btn active" data-tf="1h">1h</button>
+              <button class="tf-btn" data-tf="4h">4h</button>
+              <button class="tf-btn" data-tf="1d">1D</button>
+              <button class="tf-btn" data-tf="1w">1W</button>
+            </div>
+
+            <!-- CHART TYPE TOGGLE -->
+            <div class="chart-type-selector">
+              <button class="type-btn active" id="terminalBtnCandles" title="Candlestick Chart">🕯️ Candles</button>
+              <button class="type-btn" id="terminalBtnLine" title="Line Chart">📈 Line</button>
+            </div>
+
+            <!-- OVERLAY INDICATORS TOGGLE -->
+            <div class="indicator-toggles">
+              <label class="ind-checkbox" title="Exponential Moving Average 20"><input type="checkbox" id="terminalToggleEMA20" checked> EMA 20</label>
+              <label class="ind-checkbox" title="Exponential Moving Average 50"><input type="checkbox" id="terminalToggleEMA50" checked> EMA 50</label>
+              <label class="ind-checkbox" title="Exponential Moving Average 200"><input type="checkbox" id="terminalToggleEMA200"> EMA 200</label>
+              <label class="ind-checkbox" title="Simple Moving Average 50"><input type="checkbox" id="terminalToggleSMA50"> SMA 50</label>
+              <label class="ind-checkbox" title="Bollinger Bands (20, 2.0)"><input type="checkbox" id="terminalToggleBB"> Bollinger</label>
+              <label class="ind-checkbox" title="Volume Weighted Average Price"><input type="checkbox" id="terminalToggleVWAP"> VWAP</label>
+            </div>
+
+            <!-- CHART MARKERS TOGGLE -->
+            <div class="markers-toggles">
+              <label class="ind-checkbox" title="Show news headlines on chart"><input type="checkbox" id="terminalToggleNewsMarkers" checked> 📰 News</label>
+              <label class="ind-checkbox" title="Show economic events on chart"><input type="checkbox" id="terminalToggleEventMarkers" checked> 📅 Events</label>
+              <label class="ind-checkbox" title="Show ML trade signals on chart"><input type="checkbox" id="terminalToggleSignalMarkers" checked> ⚡ Signals</label>
+            </div>
+
+            <div class="chart-actions">
+              <span class="chart-tz-badge" id="terminalChartTzBadge" title="Chart Display Timezone: Indian Standard Time (UTC+5:30)">IST (UTC+5:30)</span>
+              <button class="btn-sm" id="terminalFitBtn" title="Reset Chart Zoom">Fit View</button>
+            </div>
+          </div>
+
+          <!-- MAIN TRADINGVIEW CANDLESTICK CHART CANVAS -->
+          <div class="chart-canvas-wrapper" id="terminalChartContainer">
+            <div class="chart-loading-overlay" id="terminalChartLoader">
+              <div class="spinner"></div>
+              <span>Streaming Market Candles...</span>
+            </div>
+          </div>
+
+          <!-- DEDICATED SUB-CHART OSCILLATOR AREA -->
+          <div class="sub-chart-wrapper" id="terminalSubChartWrapper">
+            <div class="sub-chart-header">
+              <div class="sub-chart-tabs" id="terminalSubChartTabs">
+                <button class="sub-tab active" data-sub="rsi">RSI (14)</button>
+                <button class="sub-tab" data-sub="macd">MACD (12, 26, 9)</button>
+                <button class="sub-tab" data-sub="stoch">Stochastic RSI</button>
+                <button class="sub-tab" data-sub="none">Hide Sub-Chart</button>
+              </div>
+              <span class="sub-current-val" id="terminalSubChartVal">RSI: --</span>
+            </div>
+            <div class="sub-chart-canvas" id="terminalSubChartCanvas"></div>
+          </div>
+        </main>
+
+        <!-- RIGHT SIDEBAR: TRADE INTELLIGENCE & SLIDE-OUT AI DRAWER TOGGLE -->
+        <aside class="terminal-sidebar-right">
+          <!-- EXPLAINABLE SIGNAL CARD -->
+          <div class="signal-intelligence-card" id="terminalSignalCard">
+            <div class="card-header">
+              <span class="panel-subtitle">EXPLAINABLE ML SIGNAL</span>
+              <span class="model-badge" id="terminalSignalBadge">SYNCING</span>
+            </div>
+
+            <!-- DECISION ACTION -->
+            <div class="signal-primary-display">
+              <div class="signal-action-tag badge-hold" id="terminalSigAction">HOLD</div>
+              <div class="signal-confidence-box">
+                <span class="conf-num" id="terminalSigConf">--%</span>
+                <span class="conf-lbl" id="terminalSigSetup">NEUTRAL</span>
+              </div>
+            </div>
+
+            <!-- MULTI-FACTOR METRICS -->
+            <div class="signal-metrics-grid">
+              <div class="sig-stat">
+                <span class="lbl">1h Volatility</span>
+                <span class="val" id="terminalSigVol">--%</span>
+              </div>
+              <div class="sig-stat">
+                <span class="lbl">Regime</span>
+                <span class="val" id="terminalSigRegime">NORMAL</span>
+              </div>
+              <div class="sig-stat">
+                <span class="lbl">Agreement</span>
+                <span class="val" id="terminalSigAgreement">--/5</span>
+              </div>
+              <div class="sig-stat">
+                <span class="lbl">Risk Level</span>
+                <span class="val" id="terminalSigRisk">LOW</span>
+              </div>
+            </div>
+
+            <!-- TRADE PLAN -->
+            <div class="trade-plan-box" id="terminalTradePlan">
+              <div class="plan-row"><span>Ref Price:</span> <strong id="terminalPlanPrice">--</strong></div>
+              <div class="plan-row"><span>Entry Reference:</span> <strong id="terminalPlanEntry">--</strong></div>
+              <div class="plan-row text-danger"><span>Stop-Loss (ATR):</span> <strong id="terminalPlanStop">--</strong></div>
+              <div class="plan-row text-success"><span>Take-Profit (2R):</span> <strong id="terminalPlanTarget">--</strong></div>
+              <div class="plan-row"><span>Risk / Reward:</span> <strong id="terminalPlanRR">1:2.0</strong></div>
+              <div class="plan-row"><span>Setup Status:</span> <strong id="terminalPlanStatus" class="status-waiting">WAITING</strong></div>
+            </div>
+
+            <!-- CONCISE "WHY THIS SIGNAL?" EXPLANATION -->
+            <div class="concise-reasons-box">
+              <h4 class="reasons-heading">Strategic Rationale</h4>
+              <ul class="concise-reasons-list" id="terminalReasonsList">
+                <li>Evaluating multi-factor econometric & neural outputs...</li>
+              </ul>
+            </div>
+
+            <!-- AI QUICK DRAWER TOGGLE BUTTON -->
+            <div class="terminal-ai-toggle-bar">
+              <button class="btn-ai-drawer-toggle" id="terminalToggleAiDrawer">
+                <span class="sparkle">✨</span> Open AI Assistant Panel
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- SLIDE-OUT / EXPANDABLE AI DRAWER FOR TERMINAL -->
+        <div class="ai-drawer" id="terminalAiDrawer">
+          <div class="ai-drawer-header">
+            <div class="drawer-title">
+              <span class="ai-glow-icon">●</span>
+              <strong>AI Market Copilot</strong>
+              <span class="ai-drawer-sym" id="terminalDrawerSym">BTC/USDT</span>
+            </div>
+            <button class="drawer-close-btn" id="terminalCloseAiDrawer">&times;</button>
+          </div>
+          <div class="ai-drawer-messages" id="terminalDrawerMessages">
+            <div class="msg assistant">
+              <div class="msg-bubble">
+                I am your Quantitative Research Assistant. Ask me anything about the active chart, technical levels, volatility regimes, or trading signals.
+              </div>
+            </div>
+          </div>
+          <div class="ai-drawer-input">
+            <div class="drawer-chips-row">
+              <button type="button" class="drawer-chip" data-q="Why is this moving?">Why moving?</button>
+              <button type="button" class="drawer-chip" data-q="Analyze this asset">Analyze asset</button>
+              <button type="button" class="drawer-chip" data-q="Explain RSI">Explain RSI</button>
+              <button type="button" class="drawer-chip" data-q="Explain the ML prediction">ML prediction</button>
+            </div>
+            <form class="drawer-form" id="terminalDrawerForm">
+              <input type="text" id="terminalDrawerInput" placeholder="Ask AI about this asset..." autocomplete="off">
+              <button type="submit" class="drawer-send-btn">Send</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         PAGE 3: ASSET RESEARCH
+         ====================================================================== -->
+    <section class="page-view" id="page-research">
+      <div class="page-scrollable">
+        <!-- ASSET RESEARCH HEADER -->
+        <div class="research-header-banner">
+          <div class="research-header-left">
+            <div class="research-titles">
+              <h1 id="researchSymbol">BTC/USDT</h1>
+              <span class="research-company-name" id="researchName">Bitcoin Perpetual</span>
+              <span class="research-asset-type-badge" id="researchTypeBadge">CRYPTO</span>
+              <span class="market-status-pill status-open" id="researchStatusBadge">OPEN</span>
+            </div>
+            <div class="research-pricing-row">
+              <span class="research-price" id="researchPrice">$0.00</span>
+              <span class="research-change" id="researchChange">+0.00%</span>
+              <span class="research-vol-tag" id="researchVol">24h Vol: --</span>
+            </div>
+          </div>
+          <div class="research-header-actions">
+            <a href="#terminal" class="btn-primary" id="researchBtnTrade">Trade in Terminal ⚡</a>
+            <a href="#paper" class="btn-secondary" id="researchBtnPaper">Simulate Order 💼</a>
+            <a href="#backtest" class="btn-secondary" id="researchBtnBacktest">Run Backtest 📈</a>
+          </div>
+        </div>
+
+        <!-- RESEARCH SUB-NAVIGATION TABS -->
+        <div class="research-tabs-bar" id="researchTabsBar">
+          <button class="research-tab-btn active" data-tab="res-overview">Overview</button>
+          <button class="research-tab-btn" data-tab="res-fundamentals">Fundamentals</button>
+          <button class="research-tab-btn" data-tab="res-technical">Technical Readout</button>
+          <button class="research-tab-btn" data-tab="res-news">Asset News</button>
+          <button class="research-tab-btn" data-tab="res-events">Events & Milestones</button>
+          <button class="research-tab-btn" data-tab="res-ai">AI Analysis Report</button>
+        </div>
+
+        <!-- RESEARCH TAB CONTENT PANELS -->
+        <div class="research-content-container">
+
+          <!-- TAB 1: OVERVIEW -->
+          <div class="research-tab-pane active" id="pane-res-overview">
+            <div class="research-grid-two-col">
+              <!-- COMPANY / ASSET PROFILE -->
+              <div class="research-card">
+                <div class="card-header">
+                  <h3>Asset Profile & Description</h3>
+                  <span class="badge-tag" id="researchExchangeTag">BINANCE</span>
+                </div>
+                <div class="card-body">
+                  <p class="profile-text" id="researchProfileText">Loading profile...</p>
+                  <div class="profile-meta-grid">
+                    <div class="p-meta"><span class="lbl">Asset Class:</span> <strong id="resMetaClass">Crypto</strong></div>
+                    <div class="p-meta"><span class="lbl">Currency:</span> <strong id="resMetaCurr">USD</strong></div>
+                    <div class="p-meta"><span class="lbl">52W Range:</span> <strong id="resMeta52w">--</strong></div>
+                    <div class="p-meta"><span class="lbl">Data Freshness:</span> <strong id="resMetaFreshness">LIVE</strong></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- KEY STATISTICS SUMMARY -->
+              <div class="research-card">
+                <div class="card-header">
+                  <h3>Key Financial Statistics</h3>
+                </div>
+                <div class="card-body">
+                  <div class="key-stats-list" id="researchKeyStats">
+                    <!-- Populated dynamically -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: FUNDAMENTALS -->
+          <div class="research-tab-pane" id="pane-res-fundamentals">
+            <div class="research-card">
+              <div class="card-header">
+                <h3>Financial Fundamentals & Valuation Metrics</h3>
+                <span class="caption" id="fundamentalsNote">Asset-class specific valuation ratios. Irrelevant fields report "Data unavailable".</span>
+              </div>
+              <div class="card-body">
+                <div class="fundamentals-metrics-grid" id="researchFundamentalsGrid">
+                  <!-- Dynamically populated (Stocks vs Crypto) -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: TECHNICAL READOUT -->
+          <div class="research-tab-pane" id="pane-res-technical">
+            <div class="research-card">
+              <div class="card-header">
+                <h3>Technical Indicators Matrix</h3>
+                <span class="caption">Computed on latest 1-hour candles</span>
+              </div>
+              <div class="card-body">
+                <div class="technical-readout-grid" id="researchTechnicalGrid">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: ASSET NEWS -->
+          <div class="research-tab-pane" id="pane-res-news">
+            <div class="research-card">
+              <div class="card-header">
+                <h3>Targeted News & Sentiment</h3>
+                <span class="caption">Articles specifically tagged for this symbol</span>
+              </div>
+              <div class="card-body">
+                <div class="news-list-container" id="researchNewsList">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 5: EVENTS -->
+          <div class="research-tab-pane" id="pane-res-events">
+            <div class="research-card">
+              <div class="card-header">
+                <h3>Upcoming Corporate & Macro Events</h3>
+                <span class="caption">Scheduled earnings, protocol upgrades, and CPI/FOMC releases</span>
+              </div>
+              <div class="card-body">
+                <div class="events-table-wrapper" id="researchEventsList">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 6: AI ANALYSIS REPORT -->
+          <div class="research-tab-pane" id="pane-res-ai">
+            <div class="research-card">
+              <div class="card-header">
+                <h3>Autonomous Quantitative Research Note</h3>
+                <button class="btn-sm" id="btnRefreshAiReport">Generate Fresh Report ↻</button>
+              </div>
+              <div class="card-body">
+                <div class="ai-report-body" id="researchAiReport">
+                  <p class="loading-placeholder">Generating AI synthesis combining technical indicators, valuation ratios, and news sentiment...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         PAGE 4: NEWS & EVENTS
+         ====================================================================== -->
+    <section class="page-view" id="page-news">
+      <div class="page-scrollable">
+        <div class="intelligence-header-strip">
+          <div class="section-title-wrap">
+            <h2>Financial Intelligence & Economic Calendar</h2>
+            <span class="section-subtitle">Real-time categorized news with sentiment polarity and high-impact macro dates</span>
+          </div>
+
+          <!-- GLOBAL NEWS FILTERS -->
+          <div class="intelligence-filters-bar">
+            <div class="news-category-pills" id="newsCategoryPills">
+              <button class="cat-pill active" data-cat="ALL">All Categories</button>
+              <button class="cat-pill" data-cat="Equities">Equities</button>
+              <button class="cat-pill" data-cat="Bitcoin">Bitcoin</button>
+              <button class="cat-pill" data-cat="Ethereum">Ethereum</button>
+              <button class="cat-pill" data-cat="Macro">Macro</button>
+              <button class="cat-pill" data-cat="Regulation">Regulation</button>
+            </div>
+            <div class="search-filter-box">
+              <input type="text" id="newsSearchInput" placeholder="Search headlines..." />
+            </div>
+          </div>
+        </div>
+
+        <div class="intelligence-layout-grid">
+          <!-- LEFT / MAIN: NEWS FEED -->
+          <div class="intelligence-news-col">
+            <div class="panel-header">
+              <h3>Live Market News Feed</h3>
+              <span class="badge-tag" id="newsTotalCount">-- Articles</span>
+            </div>
+            <div class="news-feed-cards" id="fullNewsFeed">
+              <div class="loading-placeholder">Fetching prioritized market headlines...</div>
+            </div>
+          </div>
+
+          <!-- RIGHT: ECONOMIC CALENDAR -->
+          <div class="intelligence-events-col">
+            <div class="panel-header">
+              <h3>Macroeconomic & Corporate Calendar</h3>
+              <span class="event-risk-pill" id="globalEventRiskBadge">RISK: NORMAL</span>
+            </div>
+
+            <!-- EVENT TIMEFRAME & IMPACT FILTERS -->
+            <div class="event-sub-filters">
+              <div class="event-time-tabs" id="eventTimeTabs">
+                <button class="event-time-btn active" data-time="today">Today</button>
+                <button class="event-time-btn" data-time="tomorrow">Tomorrow</button>
+                <button class="event-time-btn" data-time="week">This Week</button>
+                <button class="event-time-btn" data-time="all">All (96h)</button>
+              </div>
+              <div class="event-impact-filters" id="eventImpactFilters">
+                <button class="impact-pill active" data-impact="ALL">All</button>
+                <button class="impact-pill impact-high" data-impact="HIGH">High 🔴</button>
+                <button class="impact-pill impact-med" data-impact="MEDIUM">Medium 🟡</button>
+              </div>
+            </div>
+
+            <div class="events-feed-list" id="fullEventsFeed">
+              <div class="loading-placeholder">Loading calendar events...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         PAGE 5: AI RESEARCH ASSISTANT
+         ====================================================================== -->
+    <section class="page-view" id="page-ai">
+      <div class="ai-workspace-layout">
+
+        <!-- LEFT COLUMN: SESSIONS & PROMPT PRESETS -->
+        <aside class="ai-left-col">
+          <div class="ai-new-chat-bar">
+            <button class="btn-new-chat" id="btnNewAiChat">
+              <span>+</span> New Research Session
+            </button>
+          </div>
+
+          <div class="ai-presets-box">
+            <h4>Quantitative Prompt Library</h4>
+            <div class="presets-list">
+              <button class="preset-btn" data-q="Analyze current volatility regime and risk metrics for this asset">
+                📉 Volatility Regime Analysis
+              </button>
+              <button class="preset-btn" data-q="Check 5-factor model agreement concordance and confidence for this asset">
+                🎯 Factor Concordance Audit
+              </button>
+              <button class="preset-btn" data-q="Assess upcoming macro event risk (CPI, FOMC) on this asset">
+                📅 Macro Event Impact
+              </button>
+              <button class="preset-btn" data-q="Explain technical momentum, RSI divergence, and moving average cross">
+                📈 Technical Momentum Breakdown
+              </button>
+              <button class="preset-btn" data-q="Summarize today's news and news sentiment polarity for this asset">
+                📰 Headline Polarity Summary
+              </button>
+              <button class="preset-btn" data-q="What dynamic stop-loss and 2:1 target should I use for this asset?">
+                🛡️ ATR Risk & Sizing Plan
+              </button>
+            </div>
+          </div>
+
+          <div class="ai-history-box">
+            <h4>Recent Questions</h4>
+            <div class="history-list" id="aiHistoryList">
+              <div class="history-item">How does the GARCH model calculate variance?</div>
+              <div class="history-item">Why is Bitcoin showing HOLD signal?</div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- CENTER COLUMN: CHAT INTERACTION WORKSPACE -->
+        <main class="ai-center-col">
+          <div class="ai-chat-header">
+            <div class="chat-header-title">
+              <span class="ai-pulse-dot"></span>
+              <strong>ALPHA VOL Quantitative Analyst</strong>
+              <span class="ai-engine-tag" id="aiEngineTag">Deterministic Multi-Asset Engine</span>
+            </div>
+            <div class="chat-header-actions">
+              <span class="active-sym-tag" id="aiChatActiveSym">Target: BTC/USDT</span>
+              <button class="btn-sm" id="btnClearChatHistory">Clear Session</button>
+            </div>
+          </div>
+
+          <!-- MESSAGES SCROLL CONTAINER -->
+          <div class="ai-chat-thread" id="fullAiChatThread">
+            <div class="msg assistant">
+              <div class="msg-bubble">
+                <p>Welcome to <strong>ALPHAVOL Quantitative Research Studio</strong>. I am your autonomous financial and quantitative analyst.</p>
+                <p>I operate on real-time market data across <strong>Crypto, Indian Equities (NSE), US Stocks, Indices, and Forex</strong>. I calculate 9 vectorized technical indicators, evaluate econometric GARCH volatility, interpret Multi-Task LSTM & Transformer predictions, and verify macro event risks.</p>
+                <p>Click any quick action chip below or ask any quantitative market question!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CHAT INPUT DOCK -->
+          <div class="ai-chat-dock">
+            <!-- 8 QUICK ACTION CHIPS -->
+            <div class="quick-action-chips-bar" id="fullAiQuickChips">
+              <button type="button" class="action-chip" data-q="Analyze this asset">📊 Analyze asset</button>
+              <button type="button" class="action-chip" data-q="Why is this moving?">⚡ Why moving?</button>
+              <button type="button" class="action-chip" data-q="Explain RSI">📉 Explain RSI</button>
+              <button type="button" class="action-chip" data-q="Explain MACD">📈 Explain MACD</button>
+              <button type="button" class="action-chip" data-q="What changed today?">🔄 What changed?</button>
+              <button type="button" class="action-chip" data-q="Summarize today's news">📰 Summarize news</button>
+              <button type="button" class="action-chip" data-q="Explain the ML prediction">🤖 ML prediction</button>
+              <button type="button" class="action-chip" data-q="Show technical signals">🎯 Show signals</button>
+            </div>
+
+            <!-- CHAT FORM -->
+            <form class="ai-input-form" id="fullAiChatForm">
+              <input type="text" id="fullAiChatInput" placeholder="Ask quantitative analyst anything (e.g. 'Audit 5-factor agreement', 'Evaluate RSI')..." autocomplete="off" />
+              <button type="submit" class="btn-chat-send" id="btnFullAiSend">Send ↵</button>
+            </form>
+          </div>
+        </main>
+
+        <!-- RIGHT COLUMN: LIVE CONTEXT INSPECTOR -->
+        <aside class="ai-right-col">
+          <div class="panel-header">
+            <h3>Live Market Context</h3>
+            <span class="badge-tag">GROUND TRUTH</span>
+          </div>
+
+          <div class="live-context-panel" id="aiLiveContextPanel">
+            <div class="context-asset-card">
+              <div class="ctx-sym-row">
+                <span class="ctx-symbol" id="ctxSymbol">BTC/USDT</span>
+                <span class="ctx-type-badge" id="ctxType">CRYPTO</span>
+              </div>
+              <div class="ctx-price-row">
+                <span class="ctx-price" id="ctxPrice">$0.00</span>
+                <span class="ctx-change" id="ctxChange">+0.00%</span>
+              </div>
+            </div>
+
+            <div class="context-metrics-table">
+              <div class="ctx-row"><span>Trend Regime:</span> <strong id="ctxRegime">NEUTRAL</strong></div>
+              <div class="ctx-row"><span>RSI (14):</span> <strong id="ctxRsi">--</strong></div>
+              <div class="ctx-row"><span>MACD Hist:</span> <strong id="ctxMacd">--</strong></div>
+              <div class="ctx-row"><span>Active Signal:</span> <strong id="ctxSignal" class="badge-hold">HOLD</strong></div>
+              <div class="ctx-row"><span>Confidence:</span> <strong id="ctxConfidence">--%</strong></div>
+              <div class="ctx-row"><span>1h Forecast Vol:</span> <strong id="ctxVol">--%</strong></div>
+              <div class="ctx-row"><span>Event Risk:</span> <strong id="ctxEventRisk">NORMAL</strong></div>
+              <div class="ctx-row"><span>Fear & Greed:</span> <strong id="ctxSentiment">--</strong></div>
+            </div>
+
+            <div class="context-news-snippet">
+              <span class="ctx-sec-title">Latest Asset News:</span>
+              <p class="ctx-news-headline" id="ctxNewsHeadline">Loading recent headlines...</p>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         PAGE 6: PAPER TRADING
+         ====================================================================== -->
+    <section class="page-view" id="page-paper">
+      <div class="page-scrollable">
+        <!-- TOP PORTFOLIO METRICS HUD -->
+        <div class="paper-top-hud">
+          <div class="hud-metric-card">
+            <span class="hud-lbl">Portfolio Equity</span>
+            <span class="hud-val" id="paperEquityVal">$10,000.00</span>
+            <span class="hud-sub" id="paperReturnSub">+0.00% Net Return</span>
+          </div>
+          <div class="hud-metric-card">
+            <span class="hud-lbl">Available Cash</span>
+            <span class="hud-val" id="paperCashVal">$10,000.00</span>
+            <span class="hud-sub">Unallocated Capital</span>
+          </div>
+          <div class="hud-metric-card">
+            <span class="hud-lbl">Open Positions Value</span>
+            <span class="hud-val" id="paperPositionsVal">$0.00</span>
+            <span class="hud-sub" id="paperOpenCount">0 Active Positions</span>
+          </div>
+          <div class="hud-metric-card">
+            <span class="hud-lbl">Unrealized P&L</span>
+            <span class="hud-val" id="paperPnlVal">$0.00</span>
+            <span class="hud-sub" id="paperPnlPct">+0.00%</span>
+          </div>
+          <div class="hud-actions">
+            <button class="btn-secondary" id="btnResetPaperAccount">Reset Account ($10K)</button>
+          </div>
+        </div>
+
+        <div class="paper-workspace-grid">
+          <!-- LEFT: ORDER EXECUTION FORM -->
+          <div class="paper-order-card">
+            <div class="card-header">
+              <h3>Simulated Execution Desk</h3>
+              <span class="badge-tag">0.10% FEE • 0.05% SLIPPAGE</span>
+            </div>
+            <div class="card-body">
+              <!-- OPERATOR AUTHORIZATION BOX -->
+              <div class="paper-auth-box" id="paperAuthBox" style="margin-bottom: 14px; padding: 10px 12px; background: var(--bg-primary); border: 1px solid var(--border-subtle); border-radius: 6px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                  <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Operator Authorization</span>
+                  <span id="paperAuthBadge" style="font-size: 10px; font-family: var(--font-mono); padding: 2px 6px; border-radius: 3px; background: rgba(245, 158, 11, 0.15); color: var(--color-amber);">🔒 Read-Only</span>
+                </div>
+                <div id="paperAuthInputGroup" style="display: flex; gap: 6px; align-items: center;">
+                  <input type="password" id="paperApiKeyInput" placeholder="Enter AGY_API_KEY to authorize execution..." autocomplete="off" style="flex: 1; height: 28px; padding: 0 8px; font-size: 11px; font-family: var(--font-mono); background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 4px; color: var(--text-main);" />
+                  <button type="button" id="btnUnlockPaper" class="btn-sm" style="height: 28px; padding: 0 10px; font-size: 11px; background: rgba(0, 229, 255, 0.15); border: 1px solid var(--color-cyan); color: var(--color-cyan); border-radius: 4px; cursor: pointer;">Unlock</button>
+                </div>
+                <div id="paperAuthActiveGroup" style="display: none; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 11px; color: var(--color-green);">✓ Key loaded in memory (session volatile)</span>
+                  <button type="button" id="btnClearPaperKey" class="btn-sm" style="height: 24px; padding: 0 8px; font-size: 10px; background: rgba(246, 70, 93, 0.15); border: 1px solid var(--color-red); color: var(--color-red); border-radius: 4px; cursor: pointer;">Lock / Clear Key</button>
+                </div>
+              </div>
+
+              <form id="paperOrderForm" class="order-form">
+                <!-- ASSET SELECTION -->
+                <div class="form-group">
+                  <label for="paperOrderSymbol">Asset Instrument</label>
+                  <select id="paperOrderSymbol" class="input-select">
+                    <!-- Populated via JS -->
+                  </select>
+                </div>
+
+                <!-- SPOT MARK PRICE -->
+                <div class="order-price-display">
+                  <span>Current Spot Price:</span>
+                  <strong id="paperOrderMarkPrice">$0.00</strong>
+                </div>
+
+                <!-- ORDER SIDE -->
+                <div class="form-group">
+                  <label>Order Action</label>
+                  <div class="order-side-buttons">
+                    <button type="button" class="btn-side active-buy" id="sideBuyBtn" data-side="BUY">BUY (Long)</button>
+                    <button type="button" class="btn-side" id="sideSellBtn" data-side="SELL">SELL (Short / Exit)</button>
+                    <button type="button" class="btn-side" id="sideReduceBtn" data-side="REDUCE">REDUCE (De-risk)</button>
+                  </div>
+                  <input type="hidden" id="selectedOrderSide" value="BUY" />
+                </div>
+
+                <!-- POSITION SIZING PILLS -->
+                <div class="form-group">
+                  <label>Capital Allocation (% of Cash)</label>
+                  <div class="sizing-pills" id="paperSizingPills">
+                    <button type="button" class="size-pill" data-pct="25">25%</button>
+                    <button type="button" class="size-pill" data-pct="50">50%</button>
+                    <button type="button" class="size-pill" data-pct="75">75%</button>
+                    <button type="button" class="size-pill active" data-pct="100">100%</button>
+                  </div>
+                </div>
+
+                <!-- QUANTITY INPUT -->
+                <div class="form-group">
+                  <label for="paperOrderQty">Quantity (Units)</label>
+                  <input type="number" id="paperOrderQty" class="input-num" value="0.01" step="0.001" min="0.0001" required />
+                </div>
+
+                <!-- ESTIMATED VALUE & FEES -->
+                <div class="order-estimate-box">
+                  <div class="est-row"><span>Estimated Value:</span> <strong id="estOrderValue">$0.00</strong></div>
+                  <div class="est-row"><span>Available Cash After Order:</span> <strong id="estOrderRemainingCash" class="text-cyan">$10,000.00</strong></div>
+                  <div class="est-row"><span>Simulated Fees (10 bps):</span> <strong id="estOrderFee">$0.00</strong></div>
+                  <div class="est-row"><span>ATR Stop-Loss:</span> <strong id="estOrderStop" class="text-danger">--</strong></div>
+                  <div class="est-row"><span>2:1 Take-Profit:</span> <strong id="estOrderTarget" class="text-success">--</strong></div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-execute-order" id="btnSubmitPaperOrder">
+                  Execute Paper Market Order
+                </button>
+                <div class="order-status-msg" id="paperOrderStatusMsg"></div>
+              </form>
+            </div>
+          </div>
+
+          <!-- RIGHT: POSITIONS & TRADE LEDGER -->
+          <div class="paper-ledger-card">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <div class="ledger-tabs" id="paperLedgerTabs">
+                <button class="ledger-tab active" data-view="positions">Open Positions</button>
+                <button class="ledger-tab" data-view="history">Transaction Ledger</button>
+              </div>
+              <button type="button" class="btn-sm" id="btnResetPaperLedger" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); color:var(--text-muted); cursor:pointer; padding:4px 8px; border-radius:4px; font-size:11px;" title="Reset Cash to $10,000 and Clear Positions">↺ Reset Ledger</button>
+            </div>
+            <div class="card-body">
+              <!-- VIEW 1: OPEN POSITIONS TABLE -->
+              <div class="ledger-view active" id="viewPaperPositions">
+                <table class="data-table" id="paperPositionsTable">
+                  <thead>
+                    <tr>
+                      <th>Asset</th>
+                      <th>Side</th>
+                      <th>Quantity</th>
+                      <th>Entry Price</th>
+                      <th>Current Price</th>
+                      <th>Unrealized P&L</th>
+                      <th>ATR Stop</th>
+                      <th>2R Target</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="paperPositionsBody">
+                    <tr><td colspan="9" class="empty-state">No open positions. Use the order form to execute simulated trades.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- VIEW 2: TRANSACTION LEDGER -->
+              <div class="ledger-view" id="viewPaperHistory">
+                <table class="data-table" id="paperHistoryTable">
+                  <thead>
+                    <tr>
+                      <th>Timestamp</th>
+                      <th>Order ID</th>
+                      <th>Side</th>
+                      <th>Quantity</th>
+                      <th>Execution Price</th>
+                      <th>Fees</th>
+                      <th>Realized P&L</th>
+                    </tr>
+                  </thead>
+                  <tbody id="paperHistoryBody">
+                    <tr><td colspan="7" class="empty-state">No transactions recorded yet.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         PAGE 7: BACKTEST LAB
+         ====================================================================== -->
+    <section class="page-view" id="page-backtest">
+      <div class="page-scrollable">
+        <!-- TOP CONTROLS BAR -->
+        <div class="backtest-controls-card">
+          <div class="section-title-wrap">
+            <h2>Quantitative Strategy Backtester</h2>
+            <span class="section-subtitle">Chronological simulation accounting for 10 bps fees and 5 bps slippage</span>
+          </div>
+
+          <form id="backtestForm" class="backtest-form-bar">
+            <div class="b-ctrl">
+              <label>Asset</label>
+              <select id="btAsset" class="input-select">
+                <option value="BTC/USDT" selected>BTC/USDT (Crypto)</option>
+                <option value="ETH/USDT">ETH/USDT (Crypto)</option>
+                <option value="SOL/USDT">SOL/USDT (Crypto)</option>
+                <option value="RELIANCE.NS">RELIANCE.NS (NSE)</option>
+                <option value="TCS.NS">TCS.NS (NSE)</option>
+                <option value="AAPL">AAPL (US Equity)</option>
+                <option value="NVDA">NVDA (US Equity)</option>
+                <option value="EURUSD=X">EUR/USD (Forex)</option>
+              </select>
+            </div>
+
+            <div class="b-ctrl">
+              <label>Strategy</label>
+              <select id="btStrategy" class="input-select">
+                <option value="ensemble" selected>Ensemble (GARCH + LSTM + Transformer)</option>
+                <option value="momentum">Momentum Trend Filter (EMA + RSI)</option>
+                <option value="garch">GARCH Volatility Regime Filter</option>
+                <option value="buy_and_hold">Buy & Hold Benchmark</option>
+              </select>
+            </div>
+
+            <div class="b-ctrl">
+              <label>Timeframe</label>
+              <select id="btTimeframe" class="input-select">
+                <option value="1h" selected>1 Hour (1h)</option>
+                <option value="4h">4 Hours (4h)</option>
+                <option value="1d">1 Day (1d)</option>
+              </select>
+            </div>
+
+            <div class="b-ctrl">
+              <label>Initial Capital ($)</label>
+              <input type="number" id="btCapital" class="input-num" value="10000" min="100" step="500" />
+            </div>
+
+            <div class="b-ctrl">
+              <label>Lookback Bars</label>
+              <input type="number" id="btLookback" class="input-num" value="160" min="40" max="300" step="20" />
+            </div>
+
+            <button type="submit" class="btn-primary btn-run-bt" id="btnRunBacktest">
+              ⚡ Run Backtest Simulation
+            </button>
+          </form>
+        </div>
+
+        <!-- RESULTS METRICS HUD -->
+        <div class="backtest-metrics-hud" id="btMetricsHud">
+          <div class="bt-hud-card">
+            <span class="bt-lbl">Strategy Return</span>
+            <span class="bt-val text-success" id="btReturnVal">+1.91%</span>
+            <span class="bt-sub" id="btBnhSub">B&H: -1.74%</span>
+          </div>
+          <div class="bt-hud-card">
+            <span class="bt-lbl">Sharpe Ratio</span>
+            <span class="bt-val" id="btSharpeVal">0.88</span>
+            <span class="bt-sub" id="btSortinoSub">Sortino: 1.34</span>
+          </div>
+          <div class="bt-hud-card">
+            <span class="bt-lbl">Max Drawdown</span>
+            <span class="bt-val text-danger" id="btMaxDdVal">-5.18%</span>
+            <span class="bt-sub" id="btBnhDdSub">B&H DD: -7.14%</span>
+          </div>
+          <div class="bt-hud-card">
+            <span class="bt-lbl">Win Rate</span>
+            <span class="bt-val" id="btWinRateVal">58.5%</span>
+            <span class="bt-sub" id="btProfitFactorSub">Profit Factor: 1.38</span>
+          </div>
+          <div class="bt-hud-card">
+            <span class="bt-lbl">Total Trades</span>
+            <span class="bt-val" id="btTotalTradesVal">106</span>
+            <span class="bt-sub">Chronological Test</span>
+          </div>
+        </div>
+
+        <!-- VISUAL CHARTS GRID: EQUITY CURVE & DRAWDOWN -->
+        <div class="backtest-charts-grid">
+          <!-- EQUITY CURVE -->
+          <div class="bt-chart-card">
+            <div class="card-header">
+              <h3>Portfolio Equity Curve vs Benchmark</h3>
+              <div class="chart-legend">
+                <span class="leg-item"><span class="leg-line green"></span> Strategy Net Equity</span>
+                <span class="leg-item"><span class="leg-line gray"></span> Buy & Hold Benchmark</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="canvas-container" id="btEquityCurveContainer">
+                <canvas id="btEquityCanvas" width="700" height="240"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- UNDERWATER DRAWDOWN -->
+          <div class="bt-chart-card">
+            <div class="card-header">
+              <h3>Underwater Portfolio Drawdown (%)</h3>
+            </div>
+            <div class="card-body">
+              <div class="canvas-container" id="btDrawdownContainer">
+                <canvas id="btDrawdownCanvas" width="700" height="240"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRADE DISTRIBUTION HISTOGRAM & MODEL BENCHMARK TABLE -->
+        <div class="backtest-tables-grid">
+          <!-- TRADE RETURN DISTRIBUTION -->
+          <div class="bt-table-card">
+            <div class="card-header">
+              <h3>Trade PnL Distribution</h3>
+            </div>
+            <div class="card-body">
+              <div class="dist-histogram" id="btDistHistogram">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPARATIVE MODEL TABLE -->
+          <div class="bt-table-card">
+            <div class="card-header">
+              <h3>Academic Model Benchmark (Held-Out Test Set)</h3>
+            </div>
+            <div class="card-body">
+              <table class="data-table" id="btComparisonTable">
+                <thead>
+                  <tr>
+                    <th>Model</th>
+                    <th>RMSE (1h)</th>
+                    <th>MAE (1h)</th>
+                    <th>Sharpe</th>
+                    <th>Net Return (%)</th>
+                  </tr>
+                </thead>
+                <tbody id="btComparisonBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- INDIVIDUAL EXECUTED TRADES TABLE -->
+        <div class="backtest-trades-card">
+          <div class="card-header">
+            <h3>Recent Backtest Executed Trades</h3>
+            <span class="caption">Walk-forward execution sequence</span>
+          </div>
+          <div class="card-body">
+            <table class="data-table" id="btTradesTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Entry Time</th>
+                  <th>Exit Time</th>
+                  <th>Side</th>
+                  <th>Entry Price</th>
+                  <th>Exit Price</th>
+                  <th>PnL (%)</th>
+                  <th>Net PnL ($)</th>
+                  <th>Holding (Bars)</th>
+                </tr>
+              </thead>
+              <tbody id="btTradesBody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         PAGE 8: TRADING PRINCIPLES
+         ====================================================================== -->
+    <section class="page-view" id="page-principles">
+      <div class="principles-layout">
+        <!-- LEFT: HANDBOOK NAVIGATION TOC -->
+        <aside class="principles-sidebar">
+          <div class="panel-header">
+            <h3>Handbook Index</h3>
+          </div>
+          <nav class="handbook-nav" id="principlesNav">
+            <a href="#prin-1" class="h-link active">1. Volatility is Risk, Not Direction</a>
+            <a href="#prin-2" class="h-link">2. Dynamic ATR Position Sizing</a>
+            <a href="#prin-3" class="h-link">3. Asymmetric 2:1 Reward/Risk</a>
+            <a href="#prin-4" class="h-link">4. Volatility Clustering Regimes</a>
+            <a href="#prin-5" class="h-link">5. 5-Factor Model Concordance</a>
+            <a href="#prin-6" class="h-link">6. Portfolio Drawdown Circuit Breakers</a>
+            <a href="#prin-7" class="h-link">7. Cognitive Biases & Trader Mistakes</a>
+          </nav>
+
+          <!-- PRACTITIONER QUOTE ROTATOR -->
+          <div class="quote-rotator-card" id="quoteRotator">
+            <span class="quote-mark">“</span>
+            <p class="quote-text" id="principleQuoteText">"Don't focus on making money; focus on protecting what you have."</p>
+            <span class="quote-author" id="principleQuoteAuthor">— Paul Tudor Jones</span>
+          </div>
+        </aside>
+
+        <!-- RIGHT: HANDBOOK READER CONTENT -->
+        <main class="principles-reader">
+          <div class="reader-content-wrap">
+            <div class="handbook-header">
+              <h1>Classical Quantitative Trading Discipline</h1>
+              <span class="handbook-sub">Institutional risk management rules, mathematical formulas, and cognitive defense strategies</span>
+            </div>
+
+            <!-- SECTION 1 -->
+            <article class="handbook-section" id="prin-1">
+              <h2>1. Core Axiom: Volatility is Risk, Not Direction</h2>
+              <p>One of the most persistent rookie mistakes in cryptocurrency and volatile asset trading is equating high volatility with bullish momentum. Surging volatility does <em>not</em> imply upward direction; it represents expanded price dispersion, wider tails, severe slippage, and increased liquidation risk.</p>
+              <div class="formula-box">
+                <span class="f-title">Volatility Ratio Formulation:</span>
+                <code>R_vol = σ_forecast / σ_baseline_72h</code>
+              </div>
+              <p>When <code>R_vol ≥ 1.80</code>, an emergency <strong>REDUCE</strong> signal triggers automatically, forcing immediate capital de-risking regardless of directional probability.</p>
+            </article>
+
+            <!-- SECTION 2 -->
+            <article class="handbook-section" id="prin-2">
+              <h2>2. Dynamic ATR Position Sizing & The 2% Capital Risk Rule</h2>
+              <p>Never risk more than <strong>2.0% of total portfolio equity</strong> on a single trade. Stop-loss distances must never be arbitrary fixed percentages; they must adapt dynamically to the asset's current Average True Range (ATR):</p>
+              <div class="formula-box">
+                <span class="f-title">Dynamic ATR Stop Distance:</span>
+                <code>Stop_Distance = max(2.0 × ATR_14, 0.006 × Price)</code>
+                <code>Position_Size = min((Capital × 0.02) / Stop_Distance, (Capital × 0.95) / Price)</code>
+              </div>
+              <p>In calm regimes, the stop distance contracts, allowing larger position size. In volatile expansions, the stop distance widens, automatically scaling down position size to protect capital.</p>
+            </article>
+
+            <!-- SECTION 3 -->
+            <article class="handbook-section" id="prin-3">
+              <h2>3. Asymmetric 2:1 Minimum Reward-to-Risk (2R)</h2>
+              <p>A trading system with a 40% win rate can remain highly profitable if winners consistently outsize losers. The platform enforces a strict 2R minimum profit target:</p>
+              <div class="formula-box">
+                <span class="f-title">Target Price Equation:</span>
+                <code>Take_Profit = Entry_Price ± (2.0 × Stop_Distance)</code>
+              </div>
+              <p>If the distance to nearest major resistance does not allow for a 2:1 reward-to-risk ratio, the setup is rejected with a <code>HOLD</code> recommendation.</p>
+            </article>
+
+            <!-- SECTION 4 -->
+            <article class="handbook-section" id="prin-4">
+              <h2>4. Volatility Clustering & Mandelbrot Regime Shifts</h2>
+              <p>Financial asset prices do not follow independent and identically distributed (i.i.d.) Gaussian normal distributions. As Benoit Mandelbrot and Robert Engle demonstrated, volatility exhibits <strong>clustering</strong>: large changes tend to be followed by large changes, of either sign.</p>
+              <div class="rule-callout warning">
+                <strong>Rule of Clustering:</strong> After a volatility shock erupts, expect subsequent shocks for at least 24 to 72 hours. Do not attempt mean-reversion counter-trend trades during volatility expansion.
+              </div>
+            </article>
+
+            <!-- SECTION 5 -->
+            <article class="handbook-section" id="prin-5">
+              <h2>5. 5-Factor Model Concordance Scoring</h2>
+              <p>A statistical edge requires alignment across independent, orthogonal models. High-conviction signals (<code>STRONG BUY</code> / <code>STRONG SELL</code>) require at least <strong>4 out of 5 factors (80%)</strong> in agreement:</p>
+              <ol class="factors-list">
+                <li><strong>GARCH Econometric Variance</strong>: Conditional volatility remains stationary (≤ 1.40× historical median).</li>
+                <li><strong>Deep LSTM Recurrence</strong>: Sequential hidden states point in trade direction (≥ 52% or ≤ 48%).</li>
+                <li><strong>Transformer Self-Attention</strong>: 48-hour multi-head attention weights confirm momentum persistence.</li>
+                <li><strong>Technical Trend</strong>: Moving average alignment (Price > EMA 20 > EMA 50 for longs).</li>
+                <li><strong>Macro Polarity</strong>: Fear & Greed index and financial RSS headline sentiment concordant.</li>
+              </ol>
+            </article>
+
+            <!-- SECTION 6 -->
+            <article class="handbook-section" id="prin-6">
+              <h2>6. Hard Portfolio Drawdown Circuit Breakers</h2>
+              <p>If peak-to-trough portfolio equity drawdown reaches <strong>20.0%</strong>, the risk manager trips the emergency circuit breaker:</p>
+              <div class="rule-callout danger">
+                <strong>Emergency Circuit Breaker:</strong> All open positions are liquidated, new orders are blocked, and trading is halted until the operator completes an explicit post-mortem audit.
+              </div>
+            </article>
+
+            <!-- SECTION 7 -->
+            <article class="handbook-section" id="prin-7">
+              <h2>7. Cognitive Biases & Common Trader Mistakes</h2>
+              <div class="mistakes-grid">
+                <div class="mistake-item">
+                  <h4>Revenge Trading</h4>
+                  <p>Increasing position size immediately after a loss to "get even". Solution: Mandate minimum 1-hour cooling off period.</p>
+                </div>
+                <div class="mistake-item">
+                  <h4>Moving Stop Losses</h4>
+                  <p>Widening a stop loss when the market approaches it. Solution: Stop losses are set automatically and cannot be moved adversely.</p>
+                </div>
+                <div class="mistake-item">
+                  <h4>Overtrading in Churn Regimes</h4>
+                  <p>Executing trades in low-conviction range-bound chop. Solution: The <code>HOLD</code> regime preserves capital and eliminates fee bleed.</p>
+                </div>
+                <div class="mistake-item">
+                  <h4>Ignoring Event Risk</h4>
+                  <p>Holding oversized leveraged positions into high-impact CPI, FOMC, or ETF rate decisions. Solution: Event risk dampening automatically trims exposure.</p>
+                </div>
+              </div>
+            </article>
+          </div>
+        </main>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       GLOBAL MODALS
+       ======================================================================== -->
+
+  <!-- CHART MARKER POPUP MODAL -->
+  <div class="modal-overlay" id="markerModal">
+    <div class="modal-card marker-modal-card">
+      <div class="modal-header">
+        <h3 id="markerModalCategory">📰 News Event</h3>
+        <button class="modal-close" id="closeMarkerModal">&times;</button>
+      </div>
+      <div class="modal-body" id="markerModalBody">
+        <h4 id="markerModalTitle">Headline</h4>
+        <div class="marker-meta-row">
+          <span>Source: <strong id="markerModalSource">Reuters</strong></span>
+          <span>Time: <strong id="markerModalTime">--</strong></span>
+          <span>Impact: <strong id="markerModalImpact" class="impact-positive">Positive</strong></span>
+        </div>
+        <p id="markerModalSummary" class="marker-summary-text">Summary of the news or macro event...</p>
+        <div class="marker-modal-actions" id="markerModalActions">
+          <a href="#" target="_blank" rel="noopener noreferrer" class="btn-primary" id="markerModalLink">Read Full Article ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM TELEMETRY / STATUS MODAL -->
+  <div class="modal-overlay" id="statusModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>System Observability & Server Telemetry</h3>
+        <button class="modal-close" id="closeStatusModal">&times;</button>
+      </div>
+      <div class="modal-body" id="statusModalBody">
+        <p>Loading telemetry...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION TOAST CONTAINER -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- MAIN SCRIPT ENTRYPOINT -->
+  <script src="/static/js/terminal.js"></script>
+</body>
+</html>

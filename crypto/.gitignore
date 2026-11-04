@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+.DS_Store
+saved_models/*
+data/raw/*
+data/processed/*
+logs/*
+paper_trading/*.json
+!saved_models/.gitkeep
+!data/raw/.gitkeep
+!data/processed/.gitkeep
